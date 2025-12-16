@@ -1,0 +1,6 @@
+{
+    // 注意：路径中的斜杠要用 / 或者 \\ 
+    // 请根据你的实际安装位置修改下面的路径
+    "cmake.cmakePath": "E:/cmake/bin/cmake.exe",
+    "C_Cpp.errorSquiggles": "disabled"
+}
