@@ -7,13 +7,17 @@
 #include <sys/stat.h>
 #include <linux/spi/spidev.h>
 
-RK3568Backend::RK3568Backend{
+// SPI 配置参数
+static const uint32_t SPI_SPEED = 1000000; // 1MHz
+static const uint8_t  SPI_BITS  = 8;
+static const uint8_t  SPI_MODE  = 0;
 
-    m_fd= open("/dev/spidev1.0", O_RDWR);
-    if (m_fd < 0)
-    {
-        qDebug() << "Failed to open SPI device!";
-    }
+RK3568Backend::RK3568Backend(QObject *parent)
+    : IBackend(parent),m_fd(-1)
+{
+    m_readTimer = new QTimer(this);
+    m_readTimer->setInterval(20);
+    connect(m_readTimer, &QTimer::timeout, this, &RK3568Backend::readData);
 }
 
 RK3568Backend::~RK3568Backend()
@@ -23,6 +27,48 @@ RK3568Backend::~RK3568Backend()
         close(m_fd);
         m_fd = -1;
     }
+}
+/**
+ * @brief 1.初始化SPI设备
+ * @note  打开SPI设备文件，配置SPI参数
+ */
+bool RK3568Backend::init(const QString &devicePath)
+{
+    m_fd = open(devicePath.toStdString().c_str(), O_RDWR);
+    if (m_fd < 0) {
+        qCritical() << "[SPI] Failed to open device:" << devicePath;
+        return false;
+    }
+
+    // 配置 SPI 参数 (Mode, Bits, Speed)
+    uint8_t mode = SPI_MODE;
+    uint8_t bits = SPI_BITS;
+    uint32_t speed = SPI_SPEED;
+
+    if (ioctl(m_fd, SPI_IOC_WR_MODE, &mode) < 0 ||
+        ioctl(m_fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0 ||
+        ioctl(m_fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0) 
+    {
+        qCritical() << "[SPI] Failed to configure SPI settings";
+        close(m_fd);
+        m_fd = -1;
+        return false;
+    }
+
+    qInfo() << "[SPI] Initialized successfully on" << devicePath;
+    
+    // 启动接收轮询
+    m_pollTimer->start();
+    return true;
+}
+bool RK3568Backend::spiTransfer(const void *tx ,void *rx,int len)
+{
+    QMutexLocker locker(&m_mutex);
+
+
+
+
+
 }
 /**
  * @brief 1.开始刺激
