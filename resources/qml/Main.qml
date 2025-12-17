@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import EvolveUI
+import ELE_Sti
 import "components" as Components
 
 ApplicationWindow {

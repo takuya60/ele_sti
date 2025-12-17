@@ -18,7 +18,7 @@ target_include_directories(ele_sti PRIVATE
 )
 
 qt_add_qml_module(ele_sti
-    URI EvolveUI
+    URI ELE_Sti
     VERSION 1.0
     RESOURCE_PREFIX "/"
     QML_FILES
