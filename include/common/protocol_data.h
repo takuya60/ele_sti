@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 // 波形包一次传输的采样点数量
-#define WAVEFORM_BATCH_SIZE  50 
+#define WAVEFORM_BATCH_SIZE  50
 
 // --- 帧头定义 ---
 #define HEAD_CONTROL  0xAA  // [下行] 控制包
@@ -38,10 +38,10 @@ struct ControlPacket {
     
     // --- 时间参数 ---
     uint16_t freq;           // 频率 (Hz)
-    uint16_t positive_width; // 反向脉宽 (us)
-    uint16_t negative_width; // 正向脉宽 (us)
-    uint16_t dead_pulse;     // 脉间死区 (us): 正波与负波的间隔
-    uint16_t dead_cycle;     // 周期间死区 (us): 两个波形周期之间的间隔
+    uint32_t positive_width; // 反向脉宽 (us)
+    uint32_t negative_width; // 正向脉宽 (us)
+    uint32_t dead_pulse;     // 脉间死区 (us): 正波与负波的间隔
+    uint32_t dead_cycle;     // 周期间死区 (us): 两个波形周期之间的间隔
                              // (注: 若由 M4 自动计算，此字段可填 0)
     // --- 幅值参数 ---
     float    amp_pos;        // 正向幅值 (mA)
@@ -88,6 +88,7 @@ struct WaveformPacket {
  */
 struct StatusPacket {
     uint8_t  head;           // HEAD_STATUS (0xCC)
+    uint8_t  impedance;
     uint8_t  battery_pct;
     uint16_t real_freq;      // M0 定时器当前实际频率
     uint8_t  error_code;     // 错误码 (见 ERR_ 宏)

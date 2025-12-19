@@ -1,4 +1,3 @@
-// EDropdown.qml
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -11,322 +10,218 @@ Item {
     // === 基础属性 ===
     property string title: "请选择"
     property bool opened: false
-    property var model: []
+    property var model: [] // 期望格式: [{text: "Option A"}, {text: "Option B"}]
     property int selectedIndex: -1
     signal selectionChanged(int index, var item)
 
-    // === 样式属性 ===
-    property bool backgroundVisible: true
-    property real radius: 20
-    property color headerColor: theme.secondaryColor
-    property color textColor: theme.textColor
-    property color shadowColor: theme.shadowColor
-    property bool shadowEnabled: true
-    property int fontSize: 16
-    property color hoverColor: Qt.darker(headerColor, 1.2)
-    property int headerHeight: 54
-    property int popupMaxHeight: 300
-    property int horizontalPadding: 24
-    property real pressedScale: 0.96
-    property int popupSpacing: 6
+    // === 样式属性 (iOS 风格) ===
+    property real radius: 10
+    // 按钮（Header）背景色：稍微亮一点的深灰
+    property color headerColor: "#2C2C2E"
+    // 菜单（Popup）背景色：更深一点，产生层级感
+    property color popupColor: "#1C1C1E"
+    property color textColor: "#FFFFFF"
+    property color accentColor: "#0A84FF" // iOS Blue
 
-    // === 弹出动画参数 ===
-    property int popupEnterDuration: 260
-    property int popupExitDuration: 200
-    property real popupSlideOffset: -12
-    property real popupScaleFrom: 0.98
+    property int fontSize: 14
+    property int headerHeight: 40
+    property int popupMaxHeight: 250
+    property int popupSpacing: 6 // 菜单与按钮的间距
 
-    property int popupDirection: 0 // 0: Down, 1: Up
+    // === 尺寸 ===
+    implicitWidth: 140
+    implicitHeight: headerHeight
 
-    width: 200
-    height: headerHeight
+    // 确保弹窗在最上层
+    z: opened ? 1000 : 1
 
-    Item {
-        id: headerContainer
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: root.headerHeight
+    // ========================================================
+    // 1. 按钮头部 (Header)
+    // ========================================================
+    Rectangle {
+        id: headerBackground
+        anchors.fill: parent
+        radius: root.radius
+        color: root.headerColor
 
-        MultiEffect {
-            source: headerBackground
-            anchors.fill: headerBackground
-            visible: root.shadowEnabled
-            shadowEnabled: true
-            shadowColor: root.shadowColor
-            shadowBlur: theme.shadowBlur
-            shadowVerticalOffset: theme.shadowYOffset
-            shadowHorizontalOffset: theme.shadowXOffset
+        // 极细的边框，增加精致感
+        border.color: root.opened ? root.accentColor : "#33FFFFFF"
+        border.width: 1
+
+        // 点击交互
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.opened = !root.opened
         }
 
-        Rectangle {
-            id: headerBackground
+        // 内容布局
+        RowLayout {
             anchors.fill: parent
-            radius: root.radius
-            color: root.backgroundVisible ? root.headerColor : "transparent"
-            border.color: root.backgroundVisible ? "transparent" : root.textColor
-            border.width: root.backgroundVisible ? 0 : 1
-            visible: root.backgroundVisible || root.shadowEnabled
-        }
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            spacing: 0
 
-        Item {
-            anchors.fill: parent
-
-            transform: Scale {
-                id: headerScale
-                origin.x: width / 2
-                origin.y: height / 2
+            // 选中的文字
+            Text {
+                id: headerText
+                Layout.fillWidth: true
+                text: root.selectedIndex >= 0 ? (root.model[root.selectedIndex].text || root.model[root.selectedIndex]) : root.title
+                color: root.textColor
+                font.pixelSize: root.fontSize
+                font.bold: true
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
             }
 
-            ParallelAnimation {
-                id: restoreHeaderAnimation
-                SpringAnimation { target: headerScale; property: "xScale"; spring: 2.5; damping: 0.25 }
-                SpringAnimation { target: headerScale; property: "yScale"; spring: 2.5; damping: 0.25 }
-            }
+            // 旋转箭头
+            Text {
+                text: "\uf078" // fa-chevron-down
+                font.family: iconFont.name // 确保 main.qml 加载了 FontAwesome
+                font.pixelSize: 10
+                color: "#8E8E93" // iOS Gray
 
-            Item {
-                anchors.fill: parent
-                anchors.leftMargin: root.horizontalPadding
-                anchors.rightMargin: root.horizontalPadding
-
-                Text {
-                    id: headerText
-                    anchors.left: parent.left
-                    anchors.right: arrowIcon.left
-                    anchors.rightMargin: 8
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: root.selectedIndex >= 0 ? root.model[root.selectedIndex].text : root.title
-                    color: root.textColor
-                    font.pixelSize: root.fontSize
-                    font.bold: true
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                Text {
-                    id: arrowIcon
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: "\uf054"
-                    font.family: "Font Awesome 6 Free"
-                    font.pixelSize: 16
-                    color: theme.focusColor
-                    rotation: root.opened ? (root.popupDirection === 1 ? -90 : 90) : 0
-
-                    Behavior on rotation { RotationAnimation { duration: 250; easing.type: Easing.InOutQuad } }
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onPressed: {
-                    headerScale.xScale = root.pressedScale
-                    headerScale.yScale = root.pressedScale
-                }
-                onReleased: restoreHeaderAnimation.start()
-                onCanceled: restoreHeaderAnimation.start()
-                onClicked: root.opened = !root.opened
+                // 旋转动画
+                rotation: root.opened ? 180 : 0
+                Behavior on rotation { NumberAnimation { duration: 250; easing.type: Easing.InOutQuad } }
             }
         }
     }
 
+    // ========================================================
+    // 2. 弹出菜单 (Popup Menu)
+    // ========================================================
     Item {
         id: popupContainer
         width: root.width
-        height: popupBackground.height
-        property real popupOffsetY: 0
-        y: popupDirection === 1
-           ? -popupContainer.height - root.popupSpacing + popupOffsetY
-           : headerContainer.height + root.popupSpacing + popupOffsetY
+        // 根据内容自适应高度
+        height: Math.min(contentListView.contentHeight + 10, root.popupMaxHeight)
 
-        enabled: true
-        visible: opacity > 0 || root.opened
-        opacity: 0
+        // 定位：在按钮正下方
+        y: root.headerHeight + root.popupSpacing
+        x: 0
 
-        transform: Scale {
-            id: popupScale
-            origin.x: width / 2
-            origin.y: 0
-        }
+        // 状态控制
+        visible: opacity > 0
+        opacity: root.opened ? 1 : 0
+        scale: root.opened ? 1 : 0.95
+        transformOrigin: Item.Top // 从顶部向下展开
 
-        MultiEffect {
-            source: popupBackground
-            anchors.fill: popupBackground
-            visible: root.shadowEnabled
-            shadowEnabled: true
-            shadowColor: root.shadowColor
-            shadowBlur: theme.shadowBlur
-            shadowVerticalOffset: theme.shadowYOffset
-            shadowHorizontalOffset: theme.shadowXOffset
-        }
+        // 进出场动画
+        Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack; } }
 
+        // 菜单背景 (实体背景 + 阴影)
         Rectangle {
-            id: popupBackground
-            width: root.width
+            id: popupBg
+            anchors.fill: parent
             radius: root.radius
-            color: root.backgroundVisible ? root.headerColor : "transparent"
+            color: root.popupColor // 深色背景，防止混淆
+
+            // 边框
+            border.color: "#33FFFFFF"
+            border.width: 1
             clip: true
-            height: Math.min(contentListView.contentHeight + 10, root.popupMaxHeight)
 
-            Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            // 阴影特效 (弥散阴影)
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowBlur: 24
+                shadowColor: "#80000000" // 半透明黑影
+                shadowVerticalOffset: 8
+            }
+        }
 
-            ListView {
-                id: contentListView
-                anchors.fill: parent
-                clip: true
-                spacing: 6
-                topMargin: 4
-                bottomMargin: 4
-                model: root.model
+        // 列表内容
+        ListView {
+            id: contentListView
+            anchors.fill: parent
+            anchors.margins: 5 // 内部留白
+            clip: true
+            spacing: 2
 
-                delegate: Item {
-                    width: contentListView.width - 8
-                    height: 48
-                    anchors.horizontalCenter: parent.horizontalCenter
+            // 数据模型适配 (兼容纯字符串数组和对象数组)
+            model: root.model
 
-                    opacity: root.opened ? 1 : 0
-                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+            delegate: Item {
+                width: contentListView.width
+                height: 36 // 选项高度
 
-                    transform: Scale {
-                        id: itemAppearScale
-                        origin.x: width / 2
-                        origin.y: height / 2
-                        xScale: root.opened ? 1.0 : 0.98
-                        yScale: root.opened ? 1.0 : 0.98
-                        Behavior on xScale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                        Behavior on yScale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                // 数据解析辅助
+                property string itemText: (typeof modelData === 'string') ? modelData : (modelData.text || "")
+                property bool isSelected: index === root.selectedIndex
+                property bool isHovered: false
+
+                // 选中/悬停背景
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 6
+                    color: {
+                        if (isSelected) return root.accentColor // 选中变蓝
+                        if (isHovered) return "#20FFFFFF"      // 悬停变浅灰
+                        return "transparent"
                     }
 
-                    Rectangle {
-                        id: itemBg
-                        anchors.fill: parent
-                        radius: 6
-
-                        property bool hovered: false
-                        color: !root.backgroundVisible ? "transparent" : (hovered ? root.hoverColor : Qt.rgba(root.hoverColor.r, root.hoverColor.g, root.hoverColor.b, 0))
-                        Behavior on color { ColorAnimation { duration: 150 } }
-
-                        transform: Scale {
-                            id: itemScale
-                            origin.x: width / 2
-                            origin.y: height / 2
-                        }
-
-                        ParallelAnimation {
-                            id: restoreItemAnimation
-                            SpringAnimation { target: itemScale; property: "xScale"; spring: 2.5; damping: 0.25 }
-                            SpringAnimation { target: itemScale; property: "yScale"; spring: 2.5; damping: 0.25 }
-                            NumberAnimation { target: itemBg; property: "opacity"; to: 1; duration: 150 }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onPressed: {
-                                itemScale.xScale = root.pressedScale
-                                itemScale.yScale = root.pressedScale
-                            }
-                            onReleased: restoreItemAnimation.start()
-                            onCanceled: restoreItemAnimation.start()
-                            onClicked: {
-                                root.selectedIndex = index
-                                root.opened = false
-                                root.selectionChanged(index, modelData)
-                            }
-                            onEntered: itemBg.hovered = true
-                            onExited: itemBg.hovered = false
-                        }
-                    }
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: root.horizontalPadding - 4
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: modelData.text
-                        font.pixelSize: root.fontSize
-                        font.bold: false
-                        color: root.textColor
-                        visible: true
-                    }
+                    // 颜色过渡动画
+                    Behavior on color { ColorAnimation { duration: 100 } }
                 }
 
-                ScrollBar.vertical: Basic.ScrollBar {
-                    width: 4
-                    policy: ScrollBar.AsNeeded
-                    active: contentListView.moving || contentListView.dragging
+                // 选项文字
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: itemText
+                    color: isSelected ? "#FFFFFF" : root.textColor
+                    font.pixelSize: root.fontSize - 1
+                    font.bold: isSelected
+                }
 
-                    contentItem: Rectangle {
-                        implicitWidth: 4
-                        implicitHeight: 100
-                        radius: 2
-                        color: root.textColor
-                        opacity: 0.3
-                    }
-                    background: Rectangle {
-                        implicitWidth: 4
-                        implicitHeight: 100
-                        color: "transparent"
+                // 选中对勾 (可选)
+                Text {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "\uf00c" // fa-check
+                    font.family: iconFont.name
+                    visible: isSelected
+                    color: "#FFFFFF"
+                    font.pixelSize: 10
+                }
+
+                // 交互
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: parent.isHovered = true
+                    onExited: parent.isHovered = false
+                    onClicked: {
+                        root.selectedIndex = index
+                        root.opened = false
+                        // 兼容对象和字符串回传
+                        root.selectionChanged(index, (typeof modelData === 'string') ? {text: modelData} : modelData)
                     }
                 }
             }
         }
-
-        states: [
-            State {
-                name: "closed"
-                when: !root.opened
-                PropertyChanges { target: popupContainer; popupOffsetY: popupSlideOffset }
-                PropertyChanges { target: popupContainer; opacity: 0 }
-                PropertyChanges { target: popupScale; xScale: popupScaleFrom; yScale: popupScaleFrom }
-            },
-            State {
-                name: "open"
-                when: root.opened
-                PropertyChanges { target: popupContainer; popupOffsetY: 0 }
-                PropertyChanges { target: popupContainer; opacity: 1 }
-                PropertyChanges { target: popupScale; xScale: 1.0; yScale: 1.0 }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ParallelAnimation {
-                        NumberAnimation { target: popupContainer; property: "popupOffsetY"; to: 0; duration: popupEnterDuration; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: popupContainer; property: "opacity"; to: 1; duration: popupEnterDuration * 0.9; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: popupScale; property: "xScale"; to: 1.02; duration: popupEnterDuration * 0.6; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: popupScale; property: "yScale"; to: 1.02; duration: popupEnterDuration * 0.6; easing.type: Easing.OutCubic }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: popupScale; property: "xScale"; to: 1.0; duration: popupEnterDuration * 0.4; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: popupScale; property: "yScale"; to: 1.0; duration: popupEnterDuration * 0.4; easing.type: Easing.OutCubic }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                ParallelAnimation {
-                    NumberAnimation { target: popupContainer; property: "popupOffsetY"; to: popupSlideOffset; duration: popupExitDuration; easing.type: Easing.InCubic }
-                    NumberAnimation { target: popupContainer; property: "opacity"; to: 0; duration: popupExitDuration * 0.9; easing.type: Easing.InCubic }
-                    NumberAnimation { target: popupScale; property: "xScale"; to: popupScaleFrom; duration: popupExitDuration * 0.6; easing.type: Easing.InCubic }
-                    NumberAnimation { target: popupScale; property: "yScale"; to: popupScaleFrom; duration: popupExitDuration * 0.6; easing.type: Easing.InCubic }
-                }
-            }
-        ]
     }
 
-    MouseArea {
+    // 全局点击关闭 (透明遮罩)
+    // 当菜单打开时，在整个屏幕（或父级容器）覆盖一层透明区域来拦截点击
+    // 注意：在旋转场景下，这个 MouseArea 只覆盖 root 的父级范围
+    // 如果需要全屏关闭，最好在 pageRoot 加遮罩。这里这是一个简化的局部方案。
+    Item {
+        z: -1
         anchors.fill: parent
-        enabled: root.opened
-        onClicked: root.opened = false
-    }
+        // 扩展遮罩范围到稍微大一点，防止误触边缘
+        anchors.margins: -1000
+        visible: root.opened
 
-    onModelChanged: {
-        if (selectedIndex >= model.length) selectedIndex = -1
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.opened = false
+        }
     }
 }

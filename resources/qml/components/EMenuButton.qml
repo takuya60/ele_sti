@@ -72,6 +72,7 @@ Item {
     // Custom Popup Menu
     Popup {
         id: menuPopup
+        parent: root
         y: root.height + 4
         x: 0
         width: 160

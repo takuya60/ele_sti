@@ -25,6 +25,8 @@ qt_add_qml_module(ele_sti
         resources/qml/Main.qml
         # page
         resources/qml/pages/paramSetPage.qml
+        resources/qml/pages/monitorPage.qml
+        resources/qml/pages/systemPage.qml
         # 组件
         resources/qml/components/EButton.qml
         resources/qml/components/EButton2.qml
@@ -34,6 +36,12 @@ qt_add_qml_module(ele_sti
         resources/qml/components/EAvatar.qml
         resources/qml/components/EToast.qml
         resources/qml/components/ETheme.qml
+        resources/qml/components/EAnimatedWindow.qml
+        resources/qml/components/MCarousel.qml
+        resources/qml/components/ELoader.qml
+        resources/qml/components/MSystemMonitor.qml
+        resources/qml/components/EClockCard.qml
+        resources/qml/components/EDropdown.qml
     RESOURCES
         # 字体文件
         resources/fonts/icon.ico
@@ -51,6 +59,10 @@ qt_add_qml_module(ele_sti
         resources/fonts/pic/5.png
         resources/fonts/pic/6.png
         resources/fonts/pic/7.png
+        resources/fonts/pic/ca1.png
+        resources/fonts/pic/ca2.jpg
+        resources/fonts/pic/ca3.jpg
+        resources/fonts/pic/ca4.jpg
             )
 
 

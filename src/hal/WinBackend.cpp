@@ -55,6 +55,19 @@ void WinBackend::stopStimulation()
     LOG_SIM("  Output Disabled (Amplitude set to 0)");
 }
 
+void WinBackend::updateParameters(const StimulationParam &param)
+{
+
+    LOG_SIM(">>> CMD_UPDATE RECEIVED <<<");
+    LOG_SIM(QString("  Freq       : %1 Hz").arg(param.freq));
+    LOG_SIM(QString("  Pos Amp    : %1 mA").arg(param.posAmp));
+    LOG_SIM(QString("  Neg Amp    : %1 mA").arg(param.negAmp));
+    LOG_SIM(QString("  Pos Width  : %1 us").arg(param.posW));
+    LOG_SIM(QString("  Neg Width  : %1 us").arg(param.negW));
+    LOG_SIM(QString("  Dead Time  : %1 us").arg(param.dead));
+
+}
+
 void WinBackend::setPIDParameters(const PIDParam &pid)
 {
     LOG_SIM(">>> CMD_SET_PID RECEIVED <<<");
@@ -117,7 +130,7 @@ void WinBackend::onSimulateTimer()
     if (m_isRunning) {
         statusPkt.impedance = 500.0f + (rand() % 20); 
     } else {
-        statusPkt.impedance = 20000.0f;
+        statusPkt.impedance = 200;
     }
     
     statusPkt.error_code = 0; // 无错误

@@ -18,7 +18,7 @@ public:
     void startStimulation(const StimulationParam &param) override;
     void stopStimulation() override;
     void setPIDParameters(const PIDParam &pid) override;
-
+    void updateParameters(const StimulationParam &param) override;
 private slots:
     // 模拟数据生成的槽函数
     void onSimulateTimer();

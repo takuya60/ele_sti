@@ -12,7 +12,7 @@ Item {
 
     AnimatedImage {
         anchors.fill: parent
-        source: "qrc:/new/prefix1/fonts/loader.gif"
+        source: "../../fonts/pic//fonts/loader.gif"
         playing: root.running && root.visible
         fillMode: Image.PreserveAspectFit
         cache: true

@@ -1,7 +1,7 @@
 ﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import ELE_Sti
+import ELE_Sti 1.0
 import "components" as Components
 
 ApplicationWindow {
@@ -9,14 +9,10 @@ ApplicationWindow {
 
     // 【关键修改 1】这里必须填你屏幕的“物理分辨率”（竖屏）
     // 假设你的屏幕是 800x1280，如果不对请根据 fbset 命令结果修改
+    //width: 800
+    //height: 1280
     width: 1280
-
     height: 800
-
-    minimumWidth: 1200
-
-    minimumHeight: 800
-
     visible: true
     title: "Sidebar Demo"
     color: "#222" // 窗口背景色，旋转时边缘显示的颜色
@@ -45,7 +41,15 @@ ApplicationWindow {
         property int shadowYOffset: 5
         property color blurOverlayColor: "#20000000"
     }
+    //Item {
+        //id: landscapeContainer
 
+        // 这里的宽高是你原本想要的“设计分辨率”（横屏）
+       // width: 1280
+       // height: 800
+        //rotation: 90
+        // 居中定位
+        //anchors.centerIn: parent
         // === 原来的界面内容全部放在这里面 ===
         Item {
             id: contentWrapper
@@ -54,7 +58,7 @@ ApplicationWindow {
             Image {
                 id: bgImage
                 anchors.fill: parent
-                source: "../fonts/pic/4.png"
+                source: "../fonts/pic/3.jpg"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 cache: false
@@ -126,7 +130,7 @@ ApplicationWindow {
                     Components.EButton2 {
                         Layout.fillWidth: true; height: 52
                         iconSize: 32; fontSize: 12; spacing: 10
-                        text: "算法调校"
+                        text: "设备状态"
                         iconCharacter: "\uf013"
                         buttonColor: root.activeTabIndex === 2 ? theme.primaryColor : "transparent"
                         textColor: root.activeTabIndex === 2 ? "white" : "#CCFFFFFF"
@@ -209,6 +213,40 @@ ApplicationWindow {
                             }
                         }
                     }
+                    Loader {
+                        id: monitorPage
+                        anchors.fill: parent
+                        source: "pages/monitorPage.qml"
+                        active: true
+                        visible: root.activeTabIndex === 1
+                        opacity: root.activeTabIndex === 1 ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 360; easing.type: Easing.InOutQuad } }
+
+                        onLoaded: {
+                            if (item) {
+                                if (!item.theme) item.theme = theme
+                                if (item.viewportWidth !== undefined) item.viewportWidth = pagesContainer.width
+                                if (item.toastRef === undefined) item.toastRef = toast
+                            }
+                        }
+                    }
+                    Loader {
+                        id: systemPage
+                        anchors.fill: parent
+                        source: "pages/systemPage.qml"
+                        active: true
+                        visible: root.activeTabIndex === 2
+                        opacity: root.activeTabIndex === 2 ? 1 : 0
+                        Behavior on opacity { NumberAnimation { duration: 360; easing.type: Easing.InOutQuad } }
+
+                        onLoaded: {
+                            if (item) {
+                                if (!item.theme) item.theme = theme
+                                if (item.viewportWidth !== undefined) item.viewportWidth = pagesContainer.width
+                                if (item.toastRef === undefined) item.toastRef = toast
+                            }
+                        }
+                    }
                     // 其他页面的 Loader 可以在这里继续添加...
                 }
             }
@@ -221,4 +259,6 @@ ApplicationWindow {
             }
         }
     }
+   // }
+
 

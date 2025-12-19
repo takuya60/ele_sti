@@ -116,6 +116,21 @@
 //     spiTransfer(&packet,nullptr,sizeof(packet));
 // }
 
+// void RK3568Backend::updateParameters(const StimulationParam &param)
+// {
+//     ControlPacket packet={0};
+//     packet.head = HEAD_CONTROL;
+//     packet.cmd = CMD_UPDATE;
+//     packet.freq = param.freq;
+//     packet.amp_neg= param.negAmp;
+//     packet.amp_pos= param.posAmp;
+//     packet.positive_width= param.posW;
+//     packet.negative_width= param.negW;
+//     packet.dead_pulse= param.dead;
+//     packet.checksum = calculateChecksum(&packet, sizeof(packet) - 1);
+
+//     spiTransfer(&packet,nullptr,sizeof(packet));
+// }
 // /**
 //  * @brief 4.设置PID参数
 //  * @note
@@ -148,12 +163,16 @@
 //        if (head==HEAD_WAVEFORM)
 //        {
 //         WaveformPacket *packet=(WaveformPacket *)rx_buf;
-//         emit waveDataReceived(*packet);
+//         if (calculateChecksum(packet, sizeof(WaveformPacket) - 1) == packet->checksum) {
+//                 emit waveDataReceived(*packet);
+//             }
 //        }
 //        if (head==HEAD_STATUS)
 //        {
 //         StatusPacket *packet=(StatusPacket *)rx_buf;
-//         emit statusDataReceived(*packet);
+//         if (calculateChecksum(packet, sizeof(StatusPacket) - 1) == packet->checksum) {
+//                 emit statusDataReceived(*packet);
+//             }
 //        }
        
 //     }

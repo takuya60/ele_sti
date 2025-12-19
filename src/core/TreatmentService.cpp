@@ -1,7 +1,8 @@
 #include "core/TreatmentService.h"
 #include <QDebug>
 #include <QTimer>
-
+#include <QDateTime>  // 用于打印精确时间戳
+#define LOG_SIM(msg) qDebug().noquote() << "[" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz") << "][WinBackend]" << msg
 TreatmentService::TreatmentService(IBackend *backend,QObject *parent)
 :m_backend(backend),QObject(parent)
 {
@@ -66,6 +67,11 @@ void TreatmentService::stopTreatment()
 void TreatmentService::updateParameters(const StimulationParam &param)
 {
     m_currentParam = param;
+    // 运行时更新参数
+    if (m_state == Runstate::Running)
+    {
+       m_backend->updateParameters(m_currentParam);
+    }
 }
 
 /**
@@ -114,7 +120,8 @@ void TreatmentService::onTimerTick()
 
     if (m_remaining_seconds > 0) {
         m_remaining_seconds--;
-
+        LOG_SIM(QString(" remaining_seconds: %1 ")
+                    .arg(m_remaining_seconds));
         emit timeUpdated(m_remaining_seconds);
     } else {
         // 停止

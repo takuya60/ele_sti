@@ -39,7 +39,7 @@ public:
 // 开始/停止刺激，更新参数
 virtual void startStimulation(const StimulationParam &param) = 0;
 virtual void stopStimulation() = 0;
-//virtual void updateParameters(const StimulationParam &param)=0;
+virtual void updateParameters(const StimulationParam &param)=0;
 
 // 设置 PID 参数
 virtual void setPIDParameters(const PIDParam &pid) = 0;

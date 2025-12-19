@@ -3,15 +3,13 @@
 #include <QIcon>
 #include <QThread>
 #include "controllers/TreatmentManager.h"
-
+#include <QQmlContext>
 #include "core/TreatmentService.h"
 #include "controllers/TreatmentManager.h"
-#define DEBUG 1
-#ifdef DEBUG
-    #include "hal/WinBackend.h"
-#else
-    #include "hal/RK3568Backend.h"
-#endif
+#include "hal/WinBackend.h"
+
+//#include "hal/RK3568Backend.h"
+
 
 
 
@@ -19,12 +17,12 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/fonts/icon.ico"));
     QQmlApplicationEngine engine;
+    qmlRegisterUncreatableType<TreatmentManager>("ELE_Sti", 1, 0, "TreatmentManager", "Get state from treatmentManager instance");
     // 工作线程和后端初始化
     QThread *workthread =  new QThread();
-    if (!DEBUG)
-    {
-        //RK3568Backend * backend= new RK3568Backend();
-    }
+
+    //RK3568Backend * backend= new RK3568Backend();
+
 
     WinBackend * backend= new WinBackend();
     backend->moveToThread(workthread);
