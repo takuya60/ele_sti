@@ -1,3 +1,11 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:14:03
+ * @FilePath: \ele_sti\include\common\protocol_data.h
+ * @Description: 通信协议：数据结构和常量
+ */
 #pragma once 
 
 #include <stdint.h>

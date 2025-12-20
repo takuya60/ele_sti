@@ -1,3 +1,11 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:22:48
+ * @FilePath: \ele_sti\include\controllers\TreatmentManager.h
+ * @Description: ui交互层：qml ui与service交互的中间层，实现参数转换和信号转发
+ */
 #pragma once
 
 #include <QObject>
@@ -19,7 +27,7 @@ public:
         Paused  = (int)TreatmentService::Runstate::Paused,
         Error   = (int)TreatmentService::Runstate::Error
     };
-    Q_ENUM(Runstate)
+    Q_ENUM(Runstate) // 在QT注册枚举类型
 
     explicit TreatmentManager(TreatmentService *service,QObject *parent =nullptr);
      ~TreatmentManager();

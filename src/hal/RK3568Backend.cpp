@@ -1,3 +1,11 @@
+// /*
+//  * @Author: takuyasaya 1754944616@qq.com
+//  * @Date: 2025-12-16 22:51:29
+//  * @LastEditors: takuyasaya 1754944616@qq.com
+//  * @LastEditTime: 2025-12-20 18:12:39
+//  * @FilePath: \ele_sti\src\hal\RK3568Backend.cpp
+//  * @Description: 硬件抽象层：负责与RK3568的SPI通信，发送控制命令，接收状态和波形数据
+//  */
 // #include "hal/RK3568Backend.h"
 // #include <fcntl.h>
 // #include <unistd.h>

@@ -1,3 +1,11 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-17 10:51:48
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:13:12
+ * @FilePath: \ele_sti\src\hal\WinBackend.cpp
+ * @Description: 硬件抽象层：Windows模拟后端，实现IBackend接口，生成假数据用于测试
+ */
 #include "hal/WinBackend.h" // 确保路径正确
 #include <QDebug>
 #include <QtMath>     // qSin, M_PI

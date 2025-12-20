@@ -1,3 +1,11 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:16:04
+ * @FilePath: \ele_sti\include\hal\IBackend.h
+ * @Description: HAL层接口定义，用于抽象硬件后端实现
+ */
 #pragma once
 # include "common/protocol_data.h"
 # include <QObject>

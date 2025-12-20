@@ -1,3 +1,12 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:23:21
+ * @FilePath: \ele_sti\src\controllers\TreatmentManager.cpp
+ * @Description: ui交互层：qml ui与service交互的中间层，实现参数转换和信号转发
+ */
+
 #include "controllers/TreatmentManager.h"
 #include "core/TreatmentService.h"
 
@@ -5,8 +14,7 @@ TreatmentManager::TreatmentManager(TreatmentService *service, QObject *parent)
     :m_service(service),QObject(parent)
 {
     // 1. 连接状态变化
-    // 注意：Service 发出的是 Service::Runstate，我们需要转发为 Manager::Runstate
-    // 如果两个 Enum 定义完全一致，可以直接强转。
+    // Service 发出的是 Service::Runstate，需要转发为 Manager::Runstate
     // 为了安全，这里用 Lambda 表达式进行转发
     connect(m_service, &TreatmentService::stateChanged,
             this, [this](TreatmentService::Runstate){

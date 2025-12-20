@@ -1,4 +1,12 @@
-﻿#include <QGuiApplication>
+﻿/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:13:32
+ * @FilePath: \ele_sti\src\main.cpp
+ * @Description: 应用程序入口
+ */
+#include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QIcon>
 #include <QThread>
@@ -9,9 +17,6 @@
 #include "hal/WinBackend.h"
 
 //#include "hal/RK3568Backend.h"
-
-
-
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);

@@ -1,8 +1,17 @@
+/*
+ * @Author: takuyasaya 1754944616@qq.com
+ * @Date: 2025-12-16 17:01:57
+ * @LastEditors: takuyasaya 1754944616@qq.com
+ * @LastEditTime: 2025-12-20 18:19:45
+ * @FilePath: \ele_sti\src\core\TreatmentService.cpp
+ * @Description: 核心业务层：负责治疗时长控制、状态管理、参数更新等
+ */
 #include "core/TreatmentService.h"
 #include <QDebug>
 #include <QTimer>
 #include <QDateTime>  // 用于打印精确时间戳
 #define LOG_SIM(msg) qDebug().noquote() << "[" << QDateTime::currentDateTime().toString("HH:mm:ss.zzz") << "][WinBackend]" << msg
+
 TreatmentService::TreatmentService(IBackend *backend,QObject *parent)
 :m_backend(backend),QObject(parent)
 {
@@ -42,21 +51,18 @@ void TreatmentService:: startTreatment(int duration)
  */
 void TreatmentService::stopTreatment()
 {
-    if (m_state!=Runstate::Running)
-    {
+    if (m_state!=Runstate::Running){
         return;
     }
 
-    if (m_timer->isActive()) 
-    {
+    if (m_timer->isActive()) {
         m_timer->stop();
     }
     m_backend->stopStimulation();
     // 状态机改变并通知controller
     m_state=Runstate::Idle;
     emit stateChanged(Runstate::Idle);
-
-    m_remaining_seconds = 0;
+    m_remaining_seconds = 0; // 停止时时间归零
     emit timeUpdated(0);
 }
 
@@ -68,8 +74,7 @@ void TreatmentService::updateParameters(const StimulationParam &param)
 {
     m_currentParam = param;
     // 运行时更新参数
-    if (m_state == Runstate::Running)
-    {
+    if (m_state == Runstate::Running){
        m_backend->updateParameters(m_currentParam);
     }
 }
@@ -119,12 +124,11 @@ void TreatmentService::onTimerTick()
 {
 
     if (m_remaining_seconds > 0) {
-        m_remaining_seconds--;
+        m_remaining_seconds--; // 倒计时减一
         LOG_SIM(QString(" remaining_seconds: %1 ")
-                    .arg(m_remaining_seconds));
+                    .arg(m_remaining_seconds)); // 调试输出
         emit timeUpdated(m_remaining_seconds);
     } else {
-        // 停止
-        stopTreatment();
+        stopTreatment(); // 时间为0，停止治疗
     }
 }
