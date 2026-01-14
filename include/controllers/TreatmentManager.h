@@ -2,7 +2,7 @@
  * @Author: takuyasaya 1754944616@qq.com
  * @Date: 2025-12-16 17:01:57
  * @LastEditors: takuyasaya 1754944616@qq.com
- * @LastEditTime: 2025-12-20 18:22:48
+ * @LastEditTime: 2025-12-22 20:57:32
  * @FilePath: \ele_sti\include\controllers\TreatmentManager.h
  * @Description: ui交互层：qml ui与service交互的中间层，实现参数转换和信号转发
  */
@@ -46,6 +46,7 @@ private:
 signals:
     void stateChanged();
     void timeUpdated();
+    void serialTriggerReceived();
     void monitorDataUpdated(float impedance, int battery, int error);
     void waveformReceived(const QList<float> &data);
 

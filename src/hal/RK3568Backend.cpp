@@ -2,7 +2,7 @@
 //  * @Author: takuyasaya 1754944616@qq.com
 //  * @Date: 2025-12-16 22:51:29
 //  * @LastEditors: takuyasaya 1754944616@qq.com
-//  * @LastEditTime: 2025-12-20 18:12:39
+//  * @LastEditTime: 2025-12-23 14:36:42
 //  * @FilePath: \ele_sti\src\hal\RK3568Backend.cpp
 //  * @Description: 硬件抽象层：负责与RK3568的SPI通信，发送控制命令，接收状态和波形数据
 //  */
@@ -183,5 +183,40 @@
 //             }
 //        }
        
+//     }
+// }
+// void RK3568Backend::setGpio(const char *gpinPin,int value)
+// {
+//     QString path = QString("/sys/class/gpio//gpio%1/value")
+//     QFile file(path);
+//     if (file.open(QIODevice::WriteOnly)){
+//         file.write(value ? "1" : "0");
+//         file.close();
+//     }
+// }
+
+// void RK3568Backend::enableHardwareSwitch(bool enable)
+// {
+//     if (enable) {
+//         // === 开启输出序列 ===
+//         // 1. 确保 PRE 释放 (高)
+//         setGpio(GPIO_PRE, 1);
+        
+//         // 2. 产生 CLR 脉冲 (高 -> 低 -> 高)
+//         // 根据原理图：L=Clear(Q=L, Q#=H)。我们要 Q#=H(导通)，所以要触发 CLR。
+//         setGpio(GPIO_CLR, 1); // 初始状态
+//         QThread::usleep(100); // 稍作延时
+//         setGpio(GPIO_CLR, 0); // 拉低：强制 Q=0, Q#=1 (导通!)
+//         QThread::usleep(100);
+//         setGpio(GPIO_CLR, 1); // 拉高：保持状态
+        
+//         qDebug() << "Hardware Switch: UNLOCKED (Output Enabled)";
+//     } else {
+//         // === 强制关闭序列 (急停) ===
+//         // PRE = 0, CLR = 1 -> Q=1, Q#=0 (关断)
+//         setGpio(GPIO_CLR, 1);
+//         setGpio(GPIO_PRE, 0);
+        
+//         qDebug() << "Hardware Switch: LOCKED (Safe Mode)";
 //     }
 // }

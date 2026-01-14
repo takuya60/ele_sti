@@ -2,7 +2,7 @@
  * @Author: takuyasaya 1754944616@qq.com
  * @Date: 2025-12-16 17:01:57
  * @LastEditors: takuyasaya 1754944616@qq.com
- * @LastEditTime: 2025-12-20 18:23:21
+ * @LastEditTime: 2025-12-22 13:01:21
  * @FilePath: \ele_sti\src\controllers\TreatmentManager.cpp
  * @Description: ui交互层：qml ui与service交互的中间层，实现参数转换和信号转发
  */
@@ -79,12 +79,12 @@ void TreatmentManager::setPIDParameters(float kp, float ki, float kd)
     m_service->setPIDParameters(pid);
 }
 
-int TreatmentManager::remainingTime() const
+int TreatmentManager::remainingTime() const // 只读
 {
     return m_remainingTime;
 }
 TreatmentManager::Runstate TreatmentManager::currentState() const
 {
     if (!m_service) return Runstate::Idle;
-    return static_cast<Runstate>(m_service->currentState());
+    return static_cast<Runstate>(m_service->currentState()); // 把service的state类型转换到manager的runstate枚举
 }

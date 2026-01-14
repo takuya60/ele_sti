@@ -18,7 +18,6 @@ Item {
     // ==========================================
     // 1. 定义核心数据模型 (State)
     // ==========================================
-    // 这里的值现在可以正常生效了
     property real paramPosWidth: 200
     property real paramNegWidth: 200
     property real paramDeadTime: 50
@@ -64,183 +63,8 @@ Item {
     }
 
     // ==========================================
-    // 2. 内部复用组件：专用参数滑块
+    // 组件已被移除，移至 ParamSlider.qml
     // ==========================================
-    component ParamSlider: ColumnLayout {
-        id: paramSliderRoot
-
-        property string title: "参数名称"
-        property string unit: "us"
-        property var unitOptions: ["us", "ms"]
-        property real value: 0
-        property bool showInfinityWhenDisabled: false
-        property alias from: sliderControl.from
-        property alias to: sliderControl.to
-        property color accentColor: typeof theme !== "undefined" ? theme.focusColor : "#2979ff"
-
-        spacing: 5
-        Layout.fillWidth: true
-        z: 10
-
-        // 【删除】原来的 onUnitChanged 和 Component.onCompleted 代码块
-        // 这里的逻辑已经移动到下方 Slider 的属性绑定中，避免时序问题导致数值被截断为1
-
-        RowLayout {
-            Layout.fillWidth: true
-            z: 10
-
-            Text {
-                text: title
-                color: "#dedede"
-                font.bold: true
-                font.pixelSize: 18
-            }
-
-            Item { Layout.fillWidth: true }
-
-            // --- 输入框 ---
-            TextField {
-                id: valueInput
-                text: (paramSliderRoot.showInfinityWhenDisabled && !paramSliderRoot.enabled)
-                      ? "∞"
-                      : (paramSliderRoot.unit === "ms" ? sliderControl.value.toFixed(2) : Math.round(sliderControl.value).toString())
-
-                color: accentColor
-                font.pixelSize: (text === "∞") ? 30 : 22
-                font.bold: true
-                Layout.preferredWidth: 100
-                horizontalAlignment: Text.AlignRight
-
-                validator: DoubleValidator {
-                    bottom: sliderControl.from
-                    top: sliderControl.to
-                    decimals: paramSliderRoot.unit === "ms" ? 2 : 0
-                    notation: DoubleValidator.StandardNotation
-                }
-
-                enabled: paramSliderRoot.enabled
-                background: Rectangle {
-                    color: "transparent"
-                    Rectangle {
-                        anchors.bottom: parent.bottom
-                        width: parent.width; height: 2; color: accentColor
-                        visible: valueInput.activeFocus
-                    }
-                }
-                onEditingFinished: {
-                    var val = parseFloat(text)
-                    if (!isNaN(val)) {
-                        if (val < sliderControl.from) val = sliderControl.from
-                        if (val > sliderControl.to) val = sliderControl.to
-                        paramSliderRoot.value = val
-                        text = (paramSliderRoot.unit === "ms" ? val.toFixed(2) : Math.round(val).toString())
-                    } else {
-                        text = (paramSliderRoot.unit === "ms" ? sliderControl.value.toFixed(2) : Math.round(sliderControl.value).toString())
-                    }
-                }
-            }
-
-            // --- 单位下拉菜单 ---
-            Components.EDropdown {
-                id: unitDropdown
-                Layout.preferredWidth: 80
-                Layout.preferredHeight: 30
-                Layout.alignment: Qt.AlignBaseline
-
-                headerColor: "transparent"
-                textColor: "#888888"
-                radius: 4
-                fontSize: 14
-                headerHeight: 30
-
-                title: unit
-                model: unitOptions
-
-                onSelectionChanged: (index, item) => {
-                    var txt = (typeof item === 'string') ? item : item.text
-                    unit = txt
-                }
-            }
-        }
-
-        // --- 滑块 ---
-        Slider {
-            id: sliderControl
-            Layout.fillWidth: true
-            z: 1
-            from: 0
-
-            // 【核心修改】：直接绑定属性。
-            // 这样在组件创建的一瞬间，to 就是 2000，value (200) 就不会被截断成 1 了。
-            to: paramSliderRoot.unit === "ms" ? 200 : 2000
-            stepSize: paramSliderRoot.unit === "ms" ? 0.01 : 1.0
-
-            value: paramSliderRoot.value
-            enabled: paramSliderRoot.enabled
-
-            onValueChanged: {
-                // 只有当值真正改变，且不是初始化导致的 0->1 跳变时才写入
-                paramSliderRoot.value = value
-                if (!valueInput.activeFocus) {
-                    valueInput.text = (paramSliderRoot.unit === "ms" ? value.toFixed(2) : Math.round(value).toString())
-                    pageRoot.syncParamsToCpp()
-                }
-            }
-
-            background: Rectangle {
-                x: sliderControl.leftPadding
-                y: sliderControl.topPadding + sliderControl.availableHeight / 2 - height / 2
-                implicitWidth: 200
-                implicitHeight: 12
-                width: sliderControl.availableWidth
-                height: implicitHeight
-                radius: 4
-                color: sliderControl.enabled ? "#333333" : "#222222"
-
-                Item {
-                    width: sliderControl.visualPosition * parent.width
-                    height: parent.height
-                    Rectangle {
-                        anchors.fill: parent
-                        anchors.margins: -4
-                        radius: 6
-                        color: accentColor
-                        opacity: 0.3
-                        visible: sliderControl.enabled
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            blurEnabled: true
-                            blurMax: 60
-                            blur: 1.5
-                            brightness: 0.20
-                        }
-                    }
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 4
-                        color: sliderControl.enabled ? accentColor : "#555555"
-                    }
-                }
-            }
-
-            handle: Rectangle {
-                x: sliderControl.leftPadding + sliderControl.visualPosition * (sliderControl.availableWidth - width)
-                y: sliderControl.topPadding + sliderControl.availableHeight / 2 - height / 2
-                implicitWidth: 24
-                implicitHeight: 24
-                radius: 12
-                color: "white"
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    shadowEnabled: true
-                    shadowColor: "#80000000"
-                    shadowBlur: 0.5
-                    shadowVerticalOffset: 1
-                }
-            }
-        }
-    }
-
 
     // --- 主布局 ---
     RowLayout {
@@ -296,25 +120,29 @@ Item {
                     GridLayout {
                         columns: 2; columnSpacing: 40; rowSpacing: 30; Layout.fillWidth: true
 
-                        ParamSlider {
+                        Components.ParamSlider {
                             title: "正向脉宽"; value: paramPosWidth; unit: unitPosWidth;
+                            accentColor: "#2979ff"
                             onValueChanged: paramPosWidth = value; onUnitChanged: unitPosWidth = unit;
-                            accentColor: "#2979ff"
+                            onModified: pageRoot.syncParamsToCpp()
                         }
-                        ParamSlider {
+                        Components.ParamSlider {
                             title: "反向脉宽"; value: paramNegWidth; unit: unitNegWidth;
+                            accentColor: "#2979ff"
                             onValueChanged: paramNegWidth = value; onUnitChanged: unitNegWidth = unit;
-                            accentColor: "#2979ff"
+                            onModified: pageRoot.syncParamsToCpp()
                         }
-                        ParamSlider {
+                        Components.ParamSlider {
                             title: "死区时间"; value: paramDeadTime; unit: unitDeadTime;
-                            onValueChanged: paramDeadTime = value; onUnitChanged: unitDeadTime = unit;
                             accentColor: "#2979ff"
+                            onValueChanged: paramDeadTime = value; onUnitChanged: unitDeadTime = unit;
+                            onModified: pageRoot.syncParamsToCpp()
                         }
-                        ParamSlider {
+                        Components.ParamSlider {
                             title: "刺激周期"; value: paramPeriod; unit: unitPeriod;
-                            onValueChanged: paramPeriod = value; onUnitChanged: unitPeriod = unit;
                             accentColor: "#00e676"
+                            onValueChanged: paramPeriod = value; onUnitChanged: unitPeriod = unit;
+                            onModified: pageRoot.syncParamsToCpp()
                         }
                     }
                 }
@@ -333,8 +161,19 @@ Item {
                     }
                     GridLayout {
                         columns: 2; columnSpacing: 40; Layout.fillWidth: true
-                        ParamSlider { title: "正向幅值"; value: paramPosAmp; onValueChanged: paramPosAmp = value; to: 100; unit: "mA"; unitOptions: ["mA"]; accentColor: "#ff9100" }
-                        ParamSlider { title: "反向幅值"; value: paramNegAmp; onValueChanged: paramNegAmp = value; to: 100; unit: "mA"; unitOptions: ["mA"]; accentColor: "#ff9100" }
+
+                        Components.ParamSlider {
+                            title: "正向幅值"; value: paramPosAmp;
+                            toValue: 100; unit: "mA"; unitOptions: ["mA"]; accentColor: "#ff9100"
+                            onValueChanged: paramPosAmp = value
+                            onModified: pageRoot.syncParamsToCpp()
+                        }
+                        Components.ParamSlider {
+                            title: "反向幅值"; value: paramNegAmp;
+                            toValue: 100; unit: "mA"; unitOptions: ["mA"]; accentColor: "#ff9100"
+                            onValueChanged: paramNegAmp = value
+                            onModified: pageRoot.syncParamsToCpp()
+                        }
                     }
                     Rectangle { Layout.fillWidth: true; height: 1; color: "#333333" }
                     RowLayout {
@@ -358,12 +197,15 @@ Item {
                             transform: Translate { x: 8}
                         }
                         Item { Layout.fillWidth: true }
-                        ParamSlider {
-                            id: durationSlider; Layout.preferredWidth: 300; to: 20; title: ""; value: 5
+
+                        Components.ParamSlider {
+                            id: durationSlider; Layout.preferredWidth: 300;
+                            toValue: 20; title: ""; value: 5
                             unit: "min"; unitOptions: ["min"]; accentColor: "#00e676"
                             transform: Translate { y: -12 } enabled: timerSwitch.checked
                             opacity: enabled ? 1.0 : 0.5; Behavior on opacity { NumberAnimation { duration: 200 } }
                             showInfinityWhenDisabled: true
+                            // 只有开始治疗时才读取时长，所以这里不需要 onModified
                         }
                         transform: Translate { x: 8}
                     }
@@ -508,20 +350,51 @@ Item {
                     }
                     Text { text: actionButton.isRunning ? "OUTPUTTING..." : "READY TO FIRE"; color: Qt.rgba(1,1,1,0.6); font.pixelSize: 10; anchors.horizontalCenter: parent.horizontalCenter; font.letterSpacing: 2 }
                 }
+                function toggleTreatment() {
+                        if (actionButton.isRunning) {
+                            // --- 停止逻辑 ---
+                            treatmentManager.stopTreatment()
+                            if (typeof toastRef !== "undefined" && toastRef) toastRef.show("停止刺激")
+                        } else {
+                            // --- 启动逻辑
+                            var minutes = Math.round(durationSlider.value)
+                            var durationSeconds = timerSwitch.checked ? (minutes * 60) : 36000
+
+                            // 获取界面参数
+                            let pUs = getUsValue(paramPeriod, unitPeriod);
+                            let freq = (pUs > 0) ? Math.round(1000000.0 / pUs) : 0;
+
+                            // 调用 C++ 开始
+                            treatmentManager.startTreatment(
+                                durationSeconds,
+                                freq,
+                                paramPosAmp,
+                                paramNegAmp,
+                                getUsValue(paramPosWidth, unitPosWidth),
+                                getUsValue(paramDeadTime, unitDeadTime),
+                                getUsValue(paramNegWidth, unitNegWidth)
+                            )
+
+                            if (typeof toastRef !== "undefined" && toastRef) toastRef.show("开始刺激")
+                        }
+                    }
+                Connections {
+                        target: treatmentManager
+
+                        function onSerialTriggerReceived() {
+                            console.log("QML: 收到串口指令，执行切换动作")
+
+                            // 【核心修改】：去掉之前的 if 判断
+                            // 直接调用切换函数。
+                            // 效果：Start -> Stop, Stop -> Start
+                            actionButton.toggleTreatment()
+                        }
+                    }
                 MouseArea {
                     anchors.fill: parent
                     onPressed: parent.scale = 0.98; onReleased: parent.scale = 1.0
                     onClicked: {
-                        if (actionButton.isRunning) {
-                            treatmentManager.stopTreatment(); if (toastRef) toastRef.show("停止刺激")
-                        } else {
-                            var minutes = Math.round(durationSlider.value)
-                            var durationSeconds = timerSwitch.checked ? (minutes * 60) : 36000
-                            let pUs = getUsValue(paramPeriod, unitPeriod);
-                            let freq = (pUs > 0) ? Math.round(1000000.0 / pUs) : 0;
-                            treatmentManager.startTreatment(durationSeconds, freq, paramPosAmp, paramNegAmp, getUsValue(paramPosWidth, unitPosWidth), getUsValue(paramDeadTime, unitDeadTime), getUsValue(paramNegWidth, unitNegWidth))
-                            if (toastRef) toastRef.show("开始刺激")
-                        }
+                        onClicked: actionButton.toggleTreatment()
                     }
                 }
             }

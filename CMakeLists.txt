@@ -2,7 +2,7 @@
 project(ele_sti VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia Network Charts Core)
+find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia Network Charts Core SerialPort)
 qt_standard_project_setup(REQUIRES 6.7)
 
 file(GLOB_RECURSE CPP_SOURCES "src/*.cpp")
@@ -27,6 +27,7 @@ qt_add_qml_module(ele_sti
         resources/qml/pages/paramSetPage.qml
         resources/qml/pages/monitorPage.qml
         resources/qml/pages/systemPage.qml
+        # resources/qml/pages/MusicPage.qml
         # 组件
         resources/qml/components/EButton.qml
         resources/qml/components/EButton2.qml
@@ -39,9 +40,12 @@ qt_add_qml_module(ele_sti
         resources/qml/components/EAnimatedWindow.qml
         resources/qml/components/MCarousel.qml
         resources/qml/components/ELoader.qml
+        resources/qml/components/Disk.qml
+        # resources/qml/components/EDrawer.qml
         resources/qml/components/MSystemMonitor.qml
         resources/qml/components/EClockCard.qml
         resources/qml/components/EDropdown.qml
+        resources/qml/components/ParamSlider.qml
     RESOURCES
         # 字体文件
         resources/fonts/icon.ico
@@ -72,6 +76,7 @@ target_link_libraries(ele_sti PRIVATE
     Qt6::Network
     Qt6::Charts
     Qt6::Core
+    Qt6::SerialPort
 )
 
 # 设置 Windows 下不弹黑框 (Linux 下这句不起作用，无副作用)

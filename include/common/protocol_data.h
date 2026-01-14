@@ -30,6 +30,10 @@
 #define ERR_OVER_CURR 0x02  // 过流保护
 #define ERR_TIMEOUT   0x03  // 通信超时
 
+// --串口通信--
+#define FRAME_HEAD      0xAA
+#define FRAME_TAIL      0xFF
+#define MAX_BUFFER_SIZE 4096
 // =============================================================
 // 数据结构定义
 // 使用 pack(1)  1 字节对齐
@@ -103,6 +107,13 @@ struct StatusPacket {
     uint8_t  checksum;       // 校验和
 };
 
+struct ButtonPacket {
+    uint8_t  head;
+    uint8_t  cmd;
+    uint8_t  value;
+    uint8_t  checksum;
+    uint8_t  tail;
+};
 #pragma pack(pop) // 恢复默认对齐
 
 // 通用校验算法
